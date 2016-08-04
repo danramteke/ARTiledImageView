@@ -61,8 +61,8 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
 
         CGPoint locationInView = [gestureRecognizer locationInView:_imageBackedTiledImageView];
-        if (_tapDelegate) {
-            [_tapDelegate didReceiveTapAtMaxZoom:locationInView];
+        if (_arScrollViewDelegate) {
+            [_arScrollViewDelegate arScrollView_didReceiveTapAtMaxZoom:locationInView];
         }
     }
 }
@@ -122,6 +122,9 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
     }
 
     [self centerContent];
+    if (_arScrollViewDelegate) {
+        [_arScrollViewDelegate arScrollView_didZoom:self.zoomScale];
+    }
 }
 
 
@@ -172,6 +175,14 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
     _centerPoint = point;
 }
 
+- (void)focusOnPoint:(CGPoint)point animated:(BOOL)animate
+{
+    CGFloat x = (point.x * self.zoomScale) - (self.frame.size.width / 2.0f);
+    CGFloat y = (point.y * self.zoomScale) - (self.frame.size.height / 3.0f);
+    [self setContentOffset:CGPointMake(round(x), round(y)) animated:animate];
+    _centerPoint = point;
+}
+
 
 - (CGPoint)zoomRelativePoint:(CGPoint)point
 {
@@ -180,11 +191,6 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
     return CGPointMake(round(x), round(y));
 }
 
--(CGPoint)pointRelativeZoom:(CGPoint)point {
-    CGFloat x = (self.originalSize.width / self.contentSize.width) * point.x;
-    CGFloat y = (self.originalSize.height / self.contentSize.height) * point.y;
-    return CGPointMake(x, y);
-}
 
 
 #pragma mark - Orientation
@@ -209,6 +215,7 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
 {
     return self.imageBackedTiledImageView;
 }
+
 
 
 - (CGFloat)zoomLevel

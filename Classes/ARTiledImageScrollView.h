@@ -8,15 +8,15 @@
 
 #import "ARTiledImageViewDataSource.h"
 
-@protocol ARTapDelegate <NSObject>
--(void)didReceiveTapAtMaxZoom:(CGPoint)point;
-
+@protocol ARScrollViewDelegate <NSObject>
+-(void)arScrollView_didReceiveTapAtMaxZoom:(CGPoint)point;
+-(void)arScrollView_didZoom:(CGFloat)zoomScale;
 @end
 
 @interface ARTiledImageScrollView : UIScrollView <UIScrollViewDelegate, UIGestureRecognizerDelegate>
 
 //Object that receives tap information
-@property (readwrite, nonatomic, weak) NSObject<ARTapDelegate> *tapDelegate;
+@property (readwrite, nonatomic, weak) NSObject<ARScrollViewDelegate> *arScrollViewDelegate;
 
 /// Current tile zoom level.
 @property (nonatomic, readonly, assign) NSInteger tileZoomLevel;
@@ -63,4 +63,9 @@
 /// Automatically sets the zoom min & max for current bounds.
 - (void)setMaxMinZoomScalesForCurrentBounds;
 
+
+/// center point horizontally, upper third vertically
+- (void)focusOnPoint:(CGPoint)point animated:(BOOL)animate;
 @end
+
+
