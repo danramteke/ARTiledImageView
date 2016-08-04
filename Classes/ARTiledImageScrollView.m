@@ -60,9 +60,20 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
 - (void) handleSingleTap:(UIGestureRecognizer *)gestureRecognizer { 
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
 
-        CGPoint locationInView = [gestureRecognizer locationInView:_imageBackedTiledImageView];
+        
         if (_arScrollViewDelegate && [_arScrollViewDelegate respondsToSelector:@selector(arScrollView_didReceiveTapAtMaxZoom:)]) {
-            [_arScrollViewDelegate arScrollView_didReceiveTapAtMaxZoom:locationInView];
+            
+            
+            if ([_arScrollViewDelegate respondsToSelector:@selector(arScrollView_shouldReceiveTap:)]) {
+                CGPoint locationInScrollView = [gestureRecognizer locationInView:self];
+                if ([_arScrollViewDelegate arScrollView_shouldReceiveTap:locationInScrollView]) {
+                    CGPoint locationInImage = [gestureRecognizer locationInView:_imageBackedTiledImageView];
+                    [_arScrollViewDelegate arScrollView_didReceiveTapAtMaxZoom:locationInImage];
+                }
+            } else {
+                CGPoint locationInImage = [gestureRecognizer locationInView:_imageBackedTiledImageView];
+                [_arScrollViewDelegate arScrollView_didReceiveTapAtMaxZoom:locationInImage];
+            }
         }
     }
 }

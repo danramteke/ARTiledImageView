@@ -10,6 +10,7 @@
 
 @protocol ARScrollViewDelegate <NSObject>
 @optional
+-(BOOL)arScrollView_shouldReceiveTap:(CGPoint)point;
 -(void)arScrollView_didReceiveTapAtMaxZoom:(CGPoint)point;
 -(void)arScrollView_willBeginZooming;
 @end
