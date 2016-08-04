@@ -49,9 +49,24 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
     UITapGestureRecognizer *twoFingerTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTwoFingerTap:)];
     [twoFingerTap setNumberOfTouchesRequired:2];
     [self addGestureRecognizer:twoFingerTap];
+    
+    UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSingleTap:)];
+    [singleTap setNumberOfTouchesRequired:1];
+    [self addGestureRecognizer:singleTap];
 
     [self.panGestureRecognizer addTarget:self action:@selector(mapPanGestureHandler:)];
 }
+
+- (void) handleSingleTap:(UIGestureRecognizer *)gestureRecognizer { 
+    if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
+
+        CGPoint locationInView = [gestureRecognizer locationInView:_imageBackedTiledImageView];
+        if (_tapDelegate) {
+            [_tapDelegate didReceiveTapAtMaxZoom:locationInView];
+        }
+    }
+}
+
 
 
 - (void)setDisplayTileBorders:(BOOL)displayTileBorders
@@ -163,6 +178,12 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
     CGFloat x = (self.contentSize.width / self.originalSize.width) * point.x;
     CGFloat y = (self.contentSize.height / self.originalSize.height) * point.y;
     return CGPointMake(round(x), round(y));
+}
+
+-(CGPoint)pointRelativeZoom:(CGPoint)point {
+    CGFloat x = (self.originalSize.width / self.contentSize.width) * point.x;
+    CGFloat y = (self.originalSize.height / self.contentSize.height) * point.y;
+    return CGPointMake(x, y);
 }
 
 

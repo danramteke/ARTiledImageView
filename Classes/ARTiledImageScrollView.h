@@ -8,7 +8,15 @@
 
 #import "ARTiledImageViewDataSource.h"
 
-@interface ARTiledImageScrollView : UIScrollView <UIScrollViewDelegate>
+@protocol ARTapDelegate <NSObject>
+-(void)didReceiveTapAtMaxZoom:(CGPoint)point;
+
+@end
+
+@interface ARTiledImageScrollView : UIScrollView <UIScrollViewDelegate, UIGestureRecognizerDelegate>
+
+//Object that receives tap information
+@property (readwrite, nonatomic, weak) NSObject<ARTapDelegate> *tapDelegate;
 
 /// Current tile zoom level.
 @property (nonatomic, readonly, assign) NSInteger tileZoomLevel;
