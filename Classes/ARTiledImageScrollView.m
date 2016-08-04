@@ -61,7 +61,7 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
 
         CGPoint locationInView = [gestureRecognizer locationInView:_imageBackedTiledImageView];
-        if (_arScrollViewDelegate) {
+        if (_arScrollViewDelegate && [_arScrollViewDelegate respondsToSelector:@selector(arScrollView_didReceiveTapAtMaxZoom:)]) {
             [_arScrollViewDelegate arScrollView_didReceiveTapAtMaxZoom:locationInView];
         }
     }
@@ -122,9 +122,6 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
     }
 
     [self centerContent];
-    if (_arScrollViewDelegate) {
-        [_arScrollViewDelegate arScrollView_didZoom:self.zoomScale];
-    }
 }
 
 
@@ -216,7 +213,11 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
     return self.imageBackedTiledImageView;
 }
 
-
+-(void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view {
+    if (_arScrollViewDelegate && [_arScrollViewDelegate respondsToSelector:@selector(arScrollView_willBeginZooming)]) {
+        [_arScrollViewDelegate arScrollView_willBeginZooming];
+    }
+}
 
 - (CGFloat)zoomLevel
 {
