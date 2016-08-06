@@ -61,28 +61,5 @@
  */
 - (NSInteger)maximumImageZoomLevelForImageView:(ARTiledImageView *)imageView;
 
-@optional
-
-/**
- *  Return an URL for an image tile.
- *
- *  @param imageView Tiled image view.
- *  @param level     Zoom level.
- *  @param x         X coordinate of the tile.
- *  @param y         Y coordinate of the tile.
- *
- *  @return An NSURL where the tile can be downloaded from.
- */
-- (NSURL *)tiledImageView:(ARTiledImageView *)imageView urlForImageTileAtLevel:(NSInteger)level x:(NSInteger)x y:(NSInteger)y;
-
-/**
- *  Callback when an image tile has been downloaded. Use this method to cache tiles in local storage, for example.
- *
- *  @param imageView Tiled image view.
- *  @param image     UIImage of the tile.
- *  @param url       URL from which the tile has been downloaded.
- */
-- (void)tiledImageView:(ARTiledImageView *)imageView didDownloadTiledImage:(UIImage *)image atURL:(NSURL *)url;
-
 @end
 

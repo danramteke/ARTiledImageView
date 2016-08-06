@@ -41,8 +41,6 @@
 /// Display tile borders, usually for debugging purposes.
 @property (readwrite, nonatomic, assign) BOOL displayTileBorders;
 
-/// Set a background image, displayed while tiles are being downloaded.
-@property (readwrite, nonatomic) NSURL *backgroundImageURL;
 
 /// Set a background image, displayed while tiles are being downloaded.
 @property (readwrite, nonatomic) UIImage *backgroundImage;

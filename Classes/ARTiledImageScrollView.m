@@ -153,11 +153,7 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
 }
 
 
-- (void)setBackgroundImageURL:(NSURL *)backgroundImageURL
-{
-    [self.backgroundImageView setImageWithURL:backgroundImageURL];
-    _backgroundImageURL = backgroundImageURL;
-}
+
 
 
 - (void)setBackgroundImage:(UIImage *)backgroundImage
