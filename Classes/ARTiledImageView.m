@@ -18,7 +18,6 @@
 @interface ARTiledImageView ()
 @property (nonatomic, assign) NSInteger maxLevelOfDetail;
 @property (atomic, strong, readonly) NSCache *tileCache;
-@property (atomic, readonly) NSMutableDictionary *downloadOperations;
 @end
 
 @implementation ARTiledImageView
@@ -52,7 +51,7 @@
     self.frame = CGRectMake(0, 0, imageSize.width, imageSize.height);
 
     _tileCache = [[NSCache alloc] init];
-    _downloadOperations = [[NSMutableDictionary alloc] init];
+
 
     return self;
 }
@@ -97,8 +96,8 @@
     NSInteger level = self.maxLevelOfDetail + roundf(log2f(_scaleX));
     _currentZoomLevel = level;
 
-    BOOL isRemote = [self.dataSource respondsToSelector:@selector(tiledImageView:urlForImageTileAtLevel:x:y:)];
-    NSMutableDictionary *requestURLs = isRemote ? [NSMutableDictionary dictionary] : nil;
+    BOOL isRemote = false;
+    
     
     for (NSInteger row = firstRow; row <= lastRow; row++) {
         for (NSInteger col = firstCol; col <= lastCol; col++) {
@@ -119,10 +118,7 @@
             }
 
             if (!tile.tileImage) {
-                if (isRemote) {
-                    NSURL *tileURL = [self.dataSource tiledImageView:self urlForImageTileAtLevel:level x:col y:row];
-                    [requestURLs setValue:tileURL forKey:tileCacheKey];
-                }
+
             } else {
                 [tile drawInRect:tile.tileRect blendMode:kCGBlendModeNormal alpha:1];
                 if (self.displayTileBorders) {
@@ -134,9 +130,6 @@
         }
     }
 
-    if (requestURLs.count) {
-        [self downloadAndRedrawTilesWithURLs:requestURLs];
-    }
 }
 
 
@@ -153,91 +146,13 @@
 }
 
 
-- (void)downloadAndRedrawTilesWithURLs:(NSDictionary *)urls
-{
-    __weak typeof (self) wself = self;
-
-    for (NSString *tileCacheKey in urls.keyEnumerator) {
-        NSURL *tileURL = [urls objectForKey:tileCacheKey];
-        
-        @synchronized (self.downloadOperations) {
-            if ([self.downloadOperations objectForKey:tileCacheKey]) {
-                continue;
-            }
-        }
-
-        id <SDWebImageOperation> operation = nil;
-        operation = [SDWebImageManager.sharedManager downloadWithURL:tileURL options:0 progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
-            if (!wself || !finished) {
-                return;
-            }
-
-            if (error) {
-                // TODO: we want to mke sure this doesn't happen multiple times
-                [wself performSelector:_cmd withObject:urls afterDelay:1];
-                return;
-            }
-
-            void (^block)(void) = ^{
-                __strong typeof (wself) sself = wself;
-                if (!sself) {
-                    return;
-                }
-
-                if (image) {
-                    ARTile *tile = [sself.tileCache objectForKey:tileCacheKey];
-                    if (!tile) {
-                        return;
-                    }
-
-                    tile.tileImage = image;
-                    [sself setNeedsDisplayInRect:tile.tileRect];
-
-                    // Overwrite the existing object in cache now that we have a real cost
-                    NSInteger cost = image.size.height * image.size.width * image.scale;
-                    [sself.tileCache setObject:tile forKey:tileCacheKey cost:cost];
-
-                    if ([sself.dataSource respondsToSelector:@selector(tiledImageView:didDownloadTiledImage:atURL:)]) {
-                        [sself.dataSource tiledImageView:self didDownloadTiledImage:image atURL:tileURL];
-                    }
-                }
-
-                @synchronized (sself.downloadOperations) {
-                    [sself.downloadOperations removeObjectForKey:tileCacheKey];
-                }
-            };
-
-            if ([NSThread isMainThread]) {
-                block();
-            } else {
-                dispatch_sync(dispatch_get_main_queue(), block);
-            }
-        }];
-
-        @synchronized (self.downloadOperations) {
-            [self.downloadOperations setObject:operation forKey:tileCacheKey];
-        }
-    }
-}
-
 - (void)dealloc
 {
-    [self cancelConcurrentDownloads];
+    
     [_tileCache removeAllObjects];
 }
 
 
-- (void)cancelConcurrentDownloads
-{
-    @synchronized (self.downloadOperations) {
-        for (id <SDWebImageOperation> operation in self.downloadOperations.objectEnumerator) {
-            if (operation) {
-                [operation cancel];
-            }
-        }
 
-        [self.downloadOperations removeAllObjects];
-    }
-}
 
 @end
