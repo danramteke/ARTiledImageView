@@ -9,11 +9,11 @@
 #import "ARTiledImageView.h"
 #import "ARTile.h"
 #import <QuartzCore/CATiledLayer.h>
-#import <SDWebImage/UIImageView+WebCache.h>
+
 
 // ARTiledImageView responds to rectangle repaint, figures out which tile
 // to download from that rectangle and downloads tiles asynchronously.
-// It will cache images in SDWebCache and optionally store images locally.
+
 
 @interface ARTiledImageView ()
 @property (nonatomic, assign) NSInteger maxLevelOfDetail;
