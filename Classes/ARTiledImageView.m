@@ -96,7 +96,7 @@
     NSInteger level = self.maxLevelOfDetail + roundf(log2f(_scaleX));
     _currentZoomLevel = level;
 
-    BOOL isRemote = false;
+    
     
     
     for (NSInteger row = firstRow; row <= lastRow; row++) {
