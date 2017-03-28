@@ -22,8 +22,6 @@
 /// Initialize with a data source and size.
 - (id)initWithDataSource:(NSObject <ARTiledImageViewDataSource> *)dataSource minimumSize:(CGSize)size;
 
-/// Cancel any pending tile downloads.
-- (void)cancelConcurrentDownloads;
 
 /// Tiled image data source.
 @property (readonly, nonatomic, weak) NSObject <ARTiledImageViewDataSource> *dataSource;
