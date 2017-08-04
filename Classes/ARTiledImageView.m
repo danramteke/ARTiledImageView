@@ -18,6 +18,9 @@
 @interface ARTiledImageView ()
 @property (nonatomic, assign) NSInteger maxLevelOfDetail;
 @property (atomic, strong, readonly) NSCache *tileCache;
+
+@property (nonatomic, assign) CGSize ios11_tileSize;
+@property (nonatomic, assign) CGRect ios11_bounds;
 @end
 
 @implementation ARTiledImageView
@@ -37,6 +40,9 @@
 
     CATiledLayer *layer = (id) [self layer];
     layer.tileSize = [_dataSource tileSizeForImageView:self];
+    _ios11_tileSize = layer.tileSize;
+    
+    NSLog(@"SETTING TILE SIZE!!!!!!!!! %@", NSStringFromCGSize(_ios11_tileSize));
 
     NSInteger min = [_dataSource minimumImageZoomLevelForImageView:self];
     NSInteger max = [_dataSource maximumImageZoomLevelForImageView:self];
@@ -52,10 +58,18 @@
 
     _tileCache = [[NSCache alloc] init];
 
+    
 
     return self;
 }
 
+
+-(void)layoutSubviews {
+    [super layoutSubviews];
+    
+    _ios11_bounds = self.bounds;
+    NSLog(@"SETTING BOUNDS!!!!!!!!! %@", NSStringFromCGRect(_ios11_bounds));
+}
 
 - (void)drawRect:(CGRect)rect
 {
@@ -70,8 +84,7 @@
     CGFloat _scaleX = CGContextGetCTM(context).a;
     CGFloat _scaleY = CGContextGetCTM(context).d;
 
-    CATiledLayer *tiledLayer = (CATiledLayer *) [self layer];
-    CGSize tileSize = tiledLayer.tileSize;
+    CGSize tileSize = _ios11_tileSize;
 
     //
     // Even at scales lower than 100%, we are drawing into a rect in the coordinate system of the full
@@ -108,7 +121,7 @@
             NSString *tileCacheKey = [NSString stringWithFormat:@"%@/%@_%@", @(level), @(col), @(row)];
             ARTile *tile = [self.tileCache objectForKey:tileCacheKey];
             if (!tile) {
-                tileRect = CGRectIntersection(self.bounds, tileRect);
+                tileRect = CGRectIntersection(_ios11_bounds, tileRect);
                 tile = [[ARTile alloc] initWithImage:tileImage rect:tileRect];
                 [self.tileCache setObject:tile forKey:tileCacheKey cost:level];
             }
