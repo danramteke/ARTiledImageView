@@ -42,8 +42,6 @@
     layer.tileSize = [_dataSource tileSizeForImageView:self];
     _ios11_tileSize = layer.tileSize;
     
-    NSLog(@"SETTING TILE SIZE!!!!!!!!! %@", NSStringFromCGSize(_ios11_tileSize));
-
     NSInteger min = [_dataSource minimumImageZoomLevelForImageView:self];
     NSInteger max = [_dataSource maximumImageZoomLevelForImageView:self];
     layer.levelsOfDetail = max - min + 1;
@@ -68,7 +66,6 @@
     [super layoutSubviews];
     
     _ios11_bounds = self.bounds;
-    NSLog(@"SETTING BOUNDS!!!!!!!!! %@", NSStringFromCGRect(_ios11_bounds));
 }
 
 - (void)drawRect:(CGRect)rect
