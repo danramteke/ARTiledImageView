@@ -59,21 +59,11 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
 
 - (void) handleSingleTap:(UIGestureRecognizer *)gestureRecognizer { 
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
-
-        
-        if (_arScrollViewDelegate && [_arScrollViewDelegate respondsToSelector:@selector(arScrollView_didReceiveTapAtMaxZoom:)]) {
-            
-            
-            if ([_arScrollViewDelegate respondsToSelector:@selector(arScrollView_shouldReceiveTap:)]) {
+        if (_arScrollViewDelegate && [_arScrollViewDelegate respondsToSelector:@selector(arScrollView_didReceiveTapInView:atMaxZoomInImage:)]) {
                 CGPoint locationInScrollView = [gestureRecognizer locationInView:self];
-                if ([_arScrollViewDelegate arScrollView_shouldReceiveTap:locationInScrollView]) {
-                    CGPoint locationInImage = [gestureRecognizer locationInView:_imageBackedTiledImageView];
-                    [_arScrollViewDelegate arScrollView_didReceiveTapAtMaxZoom:locationInImage];
-                }
-            } else {
                 CGPoint locationInImage = [gestureRecognizer locationInView:_imageBackedTiledImageView];
-                [_arScrollViewDelegate arScrollView_didReceiveTapAtMaxZoom:locationInImage];
-            }
+                
+                [_arScrollViewDelegate arScrollView_didReceiveTapInView:locationInScrollView atMaxZoomInImage:locationInImage];                
         }
     }
 }
@@ -179,6 +169,7 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
     _centerPoint = point;
 }
 
+/// focus a point by centering on point horizontally, and upper third vertically
 - (void)focusOnPoint:(CGPoint)point animated:(BOOL)animate
 {
     CGFloat x = (point.x * self.zoomScale) - (self.frame.size.width / 2.0f);
