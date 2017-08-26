@@ -114,6 +114,11 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
     [self setZoomScale:self.minimumZoomScale animated:animate];
 }
 
+- (void)scrollViewDidScroll:(UIScrollView*)scrollView {
+  if (_arScrollViewDelegate) {
+    [_arScrollViewDelegate arScrollView_didScroll];
+  }
+}
 
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView
 {

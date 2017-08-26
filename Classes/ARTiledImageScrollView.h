@@ -9,10 +9,9 @@
 #import "ARTiledImageViewDataSource.h"
 
 @protocol ARScrollViewDelegate <NSObject>
-@optional
-
 -(void)arScrollView_didReceiveTapInView:(CGPoint)tapInView atMaxZoomInImage:(CGPoint)tapInImage;
 -(void)arScrollView_willBeginZooming;
+-(void)arScrollView_didScroll;
 @end
 
 @interface ARTiledImageScrollView : UIScrollView <UIScrollViewDelegate, UIGestureRecognizerDelegate>
