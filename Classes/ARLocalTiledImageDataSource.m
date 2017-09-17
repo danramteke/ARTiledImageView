@@ -13,7 +13,7 @@
 
 - (UIImage *)tiledImageView:(ARTiledImageView *)imageView imageTileForLevel:(NSInteger)level x:(NSInteger)x y:(NSInteger)y
 {
-    NSString *filename = [NSString stringWithFormat:@"%@/%@/%@_%@.%@", self.tileBasePath, @(level), @(x), @(y), self.tileFormat];
+    NSString *filename = [NSString stringWithFormat:@"%@/%@_%@_%@.%@", self.tileBasePath, @(level), @(x), @(y), self.tileFormat];
     return [UIImage imageWithContentsOfFile:filename];
 }
 
