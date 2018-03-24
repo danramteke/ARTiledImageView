@@ -7,7 +7,7 @@ Pod::Spec.new do |s|
   s.screenshots      = "https://raw.github.com/dblock/ARTiledImageView/master/Screenshots/goya1.png", "https://raw.github.com/dblock/ARTiledImageView/master/Screenshots/goya2.png"
   s.license          = "MIT"
   s.author           = { "dblock" => "dblock@dblock.org", "orta" => "orta.therox@gmail.com" }
-  s.source           = { :git => "https://github.com/danramteke/ARTiledImage.git", :tag => s.version.to_s }
+  s.source           = { :git => "https://github.com/danramteke/ARTiledImageView.git", :tag => s.version.to_s }
   s.platform         = :ios, '10.0'
   s.requires_arc     = true
   s.source_files     = 'Classes'
