@@ -55,6 +55,12 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
     [self addGestureRecognizer:singleTap];
 
     [self.panGestureRecognizer addTarget:self action:@selector(mapPanGestureHandler:)];
+    
+    UIPanGestureRecognizer *oneFingerZoom = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleOneFingerZoom:)];
+    oneFingerZoom.delegate = self;
+    _oneFingerZoomGesture = oneFingerZoom;
+    [self addGestureRecognizer:oneFingerZoom];
+    
 }
 
 - (void) handleSingleTap:(UIGestureRecognizer *)gestureRecognizer { 
@@ -268,6 +274,31 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
     [self setZoomScale:newScale animated:YES];
 }
 
+#pragma mark -
+#pragma mark one finger zoom
+
+- (void)handleOneFingerZoom:(UIPanGestureRecognizer *)gestureRecognizer {
+    CGFloat zoomFactor = 1.01;
+    if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        //Set initial translation to reflect the current zoomScale
+        
+        CGFloat logZoom = log(self.zoomScale) / log(zoomFactor);
+        [gestureRecognizer setTranslation: CGPointMake(0, logZoom) inView: gestureRecognizer.view];
+    } else if (gestureRecognizer.state == UIGestureRecognizerStateChanged) {
+        CGFloat logZoom = [gestureRecognizer translationInView:gestureRecognizer.view].y;
+        self.zoomScale = pow(zoomFactor, logZoom);
+    }
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+    if (gestureRecognizer == _oneFingerZoomGesture) {
+        return touch.tapCount == 2;
+    } else {
+        return true;
+    }
+}
+
+#pragma mark -
 
 - (ARTiledImageView *)tiledImageView
 {
