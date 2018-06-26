@@ -238,9 +238,9 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
 
 - (void)handleDoubleTap:(UIGestureRecognizer *)gestureRecognizer
 {
-    // Double tap zooms in, but returns to normal zoom level if it reaches max zoom.
+    
     if (self.zoomScale >= self.maximumZoomScale) {
-        [self setZoomScale:self.minimumZoomScale animated:YES];
+        [self setZoomScale:self.maximumZoomScale animated:YES];
     } else {
         // The location tapped becomes the new center
         CGPoint tapCenter = [gestureRecognizer locationInView:self.tiledImageView];
@@ -269,8 +269,7 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
 
 - (void)handleTwoFingerTap:(UIGestureRecognizer *)gestureRecognizer
 {
-    // Two-finger tap zooms out, but returns to normal zoom level if it reaches min zoom.
-    CGFloat newScale = self.zoomScale <= self.minimumZoomScale ? self.maximumZoomScale : self.zoomScale / (self.zoomStep ? : ARTiledImageScrollViewDefaultZoomStep);
+    CGFloat newScale = self.zoomScale <= self.minimumZoomScale ? self.minimumZoomScale : self.zoomScale / (self.zoomStep ? : ARTiledImageScrollViewDefaultZoomStep);
     [self setZoomScale:newScale animated:YES];
 }
 
