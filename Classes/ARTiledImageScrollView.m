@@ -13,6 +13,7 @@
 
 
 const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
+const CGFloat ARTiledImageScrollViewDefaultOneFingerZoomFactor = 1.01;
 
 @interface ARTiledImageScrollView ()
 @property (nonatomic, weak, readonly) ARImageBackedTiledView *imageBackedTiledImageView;
@@ -30,22 +31,22 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
 - (void)setup
 {
     ARTiledImageView *tiledImageView = [[ARTiledImageView alloc] initWithDataSource:self.dataSource];
-
+    
     ARImageBackedTiledView *imageBackedTileView = [[ARImageBackedTiledView alloc] initWithTiledImageView:tiledImageView];
     [self addSubview:imageBackedTileView];
     _imageBackedTiledImageView = imageBackedTileView;
-
+    
     [self setMaxMinZoomScalesForCurrentBounds];
-
+    
     self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.delegate = self;
     self.centerOnZoomOut = YES;
-
+    
     UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
     [doubleTap setNumberOfTapsRequired:2];
     [self addGestureRecognizer:doubleTap];
     _doubleTapGesture = doubleTap;
-
+    
     UITapGestureRecognizer *twoFingerTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTwoFingerTap:)];
     [twoFingerTap setNumberOfTouchesRequired:2];
     [self addGestureRecognizer:twoFingerTap];
@@ -53,7 +54,7 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
     UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSingleTap:)];
     [singleTap setNumberOfTouchesRequired:1];
     [self addGestureRecognizer:singleTap];
-
+    
     [self.panGestureRecognizer addTarget:self action:@selector(mapPanGestureHandler:)];
     
     UIPanGestureRecognizer *oneFingerZoom = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleOneFingerZoom:)];
@@ -63,13 +64,13 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
     
 }
 
-- (void) handleSingleTap:(UIGestureRecognizer *)gestureRecognizer { 
+- (void) handleSingleTap:(UIGestureRecognizer *)gestureRecognizer {
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
         if (_arScrollViewDelegate && [_arScrollViewDelegate respondsToSelector:@selector(arScrollView_didReceiveTapInView:atMaxZoomInImage:)]) {
-                CGPoint locationInScrollView = [gestureRecognizer locationInView:self];
-                CGPoint locationInImage = [gestureRecognizer locationInView:_imageBackedTiledImageView];
-                
-                [_arScrollViewDelegate arScrollView_didReceiveTapInView:locationInScrollView atMaxZoomInImage:locationInImage];                
+            CGPoint locationInScrollView = [gestureRecognizer locationInView:self];
+            CGPoint locationInImage = [gestureRecognizer locationInView:_imageBackedTiledImageView];
+            
+            [_arScrollViewDelegate arScrollView_didReceiveTapInView:locationInScrollView atMaxZoomInImage:locationInImage];
         }
     }
 }
@@ -87,29 +88,29 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
 {
     CGSize boundsSize = self.bounds.size;
     CGSize imageSize = [self.dataSource imageSizeForImageView:nil];
-
+    
     // Calculate min/max zoomscale.
     CGFloat xScale = boundsSize.width / imageSize.width; // the scale needed to perfectly fit the image width-wise
     CGFloat yScale = boundsSize.height / imageSize.height; // the scale needed to perfectly fit the image height-wise
-
+    
     CGFloat minScale = 0;
     if (self.contentMode == UIViewContentModeScaleAspectFit) {
         minScale = MIN(xScale, yScale);
     } else {
         minScale = MAX(xScale, yScale);
     }
-
+    
     CGFloat maxScale = 1.0;
-
+    
     // Don't let minScale exceed maxScale.
     // If the image is smaller than the screen, we don't want to force it to be zoomed.
     if (minScale > maxScale) {
         minScale = maxScale;
     }
-
+    
     self.maximumZoomScale = maxScale * 0.6;
     self.minimumZoomScale = minScale;
-
+    
     self.originalSize = imageSize;
     self.contentSize = boundsSize;
 }
@@ -121,9 +122,9 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
 }
 
 - (void)scrollViewDidScroll:(UIScrollView*)scrollView {
-  if (_arScrollViewDelegate) {
-    [_arScrollViewDelegate arScrollView_didScroll];
-  }
+    if (_arScrollViewDelegate) {
+        [_arScrollViewDelegate arScrollView_didScroll];
+    }
 }
 
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView
@@ -132,14 +133,14 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
         _tileZoomLevel = self.tiledImageView.currentZoomLevel;
         [self tileZoomLevelDidChange];
     }
-
+    
     [self centerContent];
 }
 
 
 - (void)tileZoomLevelDidChange
 {
-
+    
 }
 
 
@@ -203,7 +204,7 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
 
 - (void)centerContent {
     if (!self.centerOnZoomOut) { return; }
-
+    
     CGFloat top = 0, left = 0;
     if (self.contentSize.width < self.bounds.size.width) {
         left = (self.bounds.size.width-self.contentSize.width) * 0.5f;
@@ -255,15 +256,15 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
 {
     // Define the shape of the zoom rect.
     CGSize boundsSize = self.bounds.size;
-
+    
     // Modify the size according to the requested zoom level.
     // For example, if we're zooming in to 0.5 zoom, then this will increase the bounds size by a factor of two.
     CGSize scaledBoundsSize = CGSizeMake(boundsSize.width / zoomScale, boundsSize.height / zoomScale);
-
+    
     return CGRectMake(point.x - scaledBoundsSize.width / 2,
-            point.y - scaledBoundsSize.height / 2,
-            scaledBoundsSize.width,
-            scaledBoundsSize.height);
+                      point.y - scaledBoundsSize.height / 2,
+                      scaledBoundsSize.width,
+                      scaledBoundsSize.height);
 }
 
 
@@ -277,15 +278,15 @@ const CGFloat ARTiledImageScrollViewDefaultZoomStep = 1.5;
 #pragma mark one finger zoom
 
 - (void)handleOneFingerZoom:(UIPanGestureRecognizer *)gestureRecognizer {
-    CGFloat zoomFactor = 1.01;
+    CGFloat localOneFingerZoomFactor = self.oneFingerZoomFactor ? : ARTiledImageScrollViewDefaultOneFingerZoomFactor;
     if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
         //Set initial translation to reflect the current zoomScale
         
-        CGFloat logZoom = log(self.zoomScale) / log(zoomFactor);
+        CGFloat logZoom = log(self.zoomScale) / log(localOneFingerZoomFactor);
         [gestureRecognizer setTranslation: CGPointMake(0, logZoom) inView: gestureRecognizer.view];
     } else if (gestureRecognizer.state == UIGestureRecognizerStateChanged) {
         CGFloat logZoom = [gestureRecognizer translationInView:gestureRecognizer.view].y;
-        self.zoomScale = pow(zoomFactor, logZoom);
+        self.zoomScale = pow(localOneFingerZoomFactor, logZoom);
     }
 }
 

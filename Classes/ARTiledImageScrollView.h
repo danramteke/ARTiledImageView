@@ -59,6 +59,7 @@
 /// Exposed double tap gesture for zooming.
 @property (nonatomic, strong, readonly) UITapGestureRecognizer *doubleTapGesture;
 @property (nonatomic, strong, readonly) UIPanGestureRecognizer *oneFingerZoomGesture;
+@property (readwrite) CGFloat oneFingerZoomFactor;
 
 /// Automatically sets the zoom min & max for current bounds.
 - (void)setMaxMinZoomScalesForCurrentBounds;
