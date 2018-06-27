@@ -287,6 +287,10 @@ const CGFloat ARTiledImageScrollViewDefaultOneFingerZoomFactor = 1.01;
     } else if (gestureRecognizer.state == UIGestureRecognizerStateChanged) {
         CGFloat logZoom = [gestureRecognizer translationInView:gestureRecognizer.view].y;
         self.zoomScale = pow(localOneFingerZoomFactor, logZoom);
+
+        if (_arScrollViewDelegate && [_arScrollViewDelegate respondsToSelector:@selector(arScrollView_willBeginZooming)]) {
+           [_arScrollViewDelegate arScrollView_willBeginZooming];
+        }
     }
 }
 
