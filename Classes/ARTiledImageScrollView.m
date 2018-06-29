@@ -108,16 +108,16 @@ const CGFloat ARTiledImageScrollViewDefaultOneFingerZoomFactor = 1.01;
         minScale = maxScale;
     }
     
-    self.maximumZoomScale = maxScale * 0.6;
-    self.minimumZoomScale = minScale;
+    self.maximumZoomScale = self.referenceMaximumZoomScale ?: maxScale * 0.6;
+    self.minimumZoomScale = self.referenceMinimumZoomScale ?: minScale;
+
     
     self.originalSize = imageSize;
     self.contentSize = boundsSize;
 }
 
 
-- (void)zoomToFit:(BOOL)animate
-{
+- (void)zoomToFit:(BOOL)animate {
     [self setZoomScale:self.minimumZoomScale animated:animate];
 }
 
@@ -129,20 +129,12 @@ const CGFloat ARTiledImageScrollViewDefaultOneFingerZoomFactor = 1.01;
 
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView
 {
-    if (self.tileZoomLevel != self.tiledImageView.currentZoomLevel) {
-        _tileZoomLevel = self.tiledImageView.currentZoomLevel;
-        [self tileZoomLevelDidChange];
-    }
-    
     [self centerContent];
 }
 
+- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale {
 
-- (void)tileZoomLevelDidChange
-{
-    
 }
-
 
 - (void)setFrame:(CGRect)frame
 {
@@ -154,24 +146,12 @@ const CGFloat ARTiledImageScrollViewDefaultOneFingerZoomFactor = 1.01;
     [self centerContent];
 }
 
-
-
-
-
-- (void)setBackgroundImage:(UIImage *)backgroundImage
-{
-    [self.backgroundImageView setImage:backgroundImage];
-    _backgroundImage = backgroundImage;
-}
-
-
 - (void)mapPanGestureHandler:(UIPanGestureRecognizer *)panGesture
 {
     if (panGesture.state == UIGestureRecognizerStateBegan) {
         _centerPoint = CGPointZero;
     }
 }
-
 
 - (void)centerOnPoint:(CGPoint)point animated:(BOOL)animate
 {
@@ -285,12 +265,32 @@ const CGFloat ARTiledImageScrollViewDefaultOneFingerZoomFactor = 1.01;
         CGFloat logZoom = log(self.zoomScale) / log(localOneFingerZoomFactor);
         [gestureRecognizer setTranslation: CGPointMake(0, logZoom) inView: gestureRecognizer.view];
     } else if (gestureRecognizer.state == UIGestureRecognizerStateChanged) {
-        CGFloat logZoom = [gestureRecognizer translationInView:gestureRecognizer.view].y;
-        self.zoomScale = pow(localOneFingerZoomFactor, logZoom);
-
+        CGFloat logZoom = [gestureRecognizer translationInView: gestureRecognizer.view].y;
+        CGFloat t = pow(localOneFingerZoomFactor, logZoom);
+        
         if (_arScrollViewDelegate && [_arScrollViewDelegate respondsToSelector:@selector(arScrollView_willBeginZooming)]) {
-           [_arScrollViewDelegate arScrollView_willBeginZooming];
+            [_arScrollViewDelegate arScrollView_willBeginZooming];
         }
+        
+        if (t > self.referenceMaximumZoomScale && t <= self.bounceMaximumZoomScale) {
+            self.maximumZoomScale = t;
+            self.zoomScale = t;
+        } else if (t < self.referenceMinimumZoomScale && t >= self.bounceMinimumZoomScale) {
+            self.minimumZoomScale = t;
+            self.zoomScale = t;
+        } else {
+            self.zoomScale = t;
+        }
+    } else if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
+
+        if (self.zoomScale > self.referenceMaximumZoomScale) {
+            [self setZoomScale:self.referenceMaximumZoomScale animated:true];
+        } else if (self.zoomScale < self.referenceMinimumZoomScale) {
+            [self setZoomScale:self.referenceMinimumZoomScale animated:true];
+        }
+        
+        self.maximumZoomScale = self.referenceMaximumZoomScale;
+        self.minimumZoomScale = self.referenceMinimumZoomScale;
     }
 }
 

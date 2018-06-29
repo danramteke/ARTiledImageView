@@ -31,18 +31,12 @@
 /// Zoom the image to fit the current display.
 - (void)zoomToFit:(BOOL)animate;
 
-/// Callback for when the tile zoom level has changed.
-- (void)tileZoomLevelDidChange;
-
 /// The data source for image.
 @property (readwrite, nonatomic, weak) NSObject <ARTiledImageViewDataSource> *dataSource;
 
 /// Display tile borders, usually for debugging purposes.
 @property (readwrite, nonatomic, assign) BOOL displayTileBorders;
 
-
-/// Set a background image, displayed while tiles are being downloaded.
-@property (readwrite, nonatomic) UIImage *backgroundImage;
 
 /// Point on which to center the map by default, removed when panned.
 @property (nonatomic, assign) CGPoint centerPoint;
@@ -58,8 +52,13 @@
 
 /// Exposed double tap gesture for zooming.
 @property (nonatomic, strong, readonly) UITapGestureRecognizer *doubleTapGesture;
+
 @property (nonatomic, strong, readonly) UIPanGestureRecognizer *oneFingerZoomGesture;
-@property (readwrite) CGFloat oneFingerZoomFactor;
+@property (nonatomic, assign) CGFloat oneFingerZoomFactor;
+@property (nonatomic, assign) CGFloat referenceMaximumZoomScale;
+@property (nonatomic, assign) CGFloat referenceMinimumZoomScale;
+@property (nonatomic, assign) CGFloat bounceMaximumZoomScale;
+@property (nonatomic, assign) CGFloat bounceMinimumZoomScale;
 
 /// Automatically sets the zoom min & max for current bounds.
 - (void)setMaxMinZoomScalesForCurrentBounds;
